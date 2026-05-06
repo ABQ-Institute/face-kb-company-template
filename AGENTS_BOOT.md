@@ -8,6 +8,24 @@ You are operating inside an EACF-structured knowledge base. Apply the skills bel
 
 ---
 
+## Data Status Convention
+
+Every content file in this KB has a `data_status` field in its YAML front matter. It declares how reliable the content is.
+
+| Value | Meaning | Agent behaviour |
+|-------|---------|----------------|
+| `placeholder` | Structure only — no real content yet | Do not cite. Prompt the human to fill it in. |
+| `plausible` | Content exists but has not been confirmed by the team | Cite only with explicit caveat: _"This content is unverified — please confirm with the document owner."_ |
+| `verified` | Confirmed accurate by the document owner | Cite freely. |
+
+**Rules:**
+- When creating or updating a file, always declare `data_status` in the front matter.
+- Never present `plausible` content as authoritative.
+- When a human confirms content is accurate, update `data_status` from `plausible` to `verified` via the normal PR process.
+- If `data_status` is missing from a file, treat it as `plausible` until confirmed.
+
+---
+
 # eacf-kb — Knowledge Base Agent Skill
 
 ## What This Skill Does
