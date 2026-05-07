@@ -46,5 +46,28 @@ data_status: placeholder
 
 ## Purpose for Agents
 
-<!-- What should agents know before working on tasks for this department? -->
-<!-- e.g. "Always cc the department head on external comms", "Use process X for Y" -->
+> This section is for AI agents, not humans. It provides navigation shortcuts and behavioural rules specific to this department.
+
+### Navigation shortcuts
+
+| Question type | Where to look |
+|--------------|---------------|
+| How does this department handle [process]? | `2-processes/` |
+| Who is responsible for [task]? | `3-team.md` |
+| What decisions have been made about [topic]? | `4-decisions/` |
+
+### Rules for agents working in this department
+
+<!-- List any department-specific rules agents must follow. Examples: -->
+<!-- - Always include the department head in notifications about external commitments -->
+<!-- - Use the process template in 2-processes/ for any new workflow documentation -->
+<!-- - Do not modify team.md directly — changes require HR approval -->
+
+- <!-- Rule: [describe the rule and why it exists] -->
+- <!-- Rule: [describe the rule and why it exists] -->
+
+### When in doubt
+
+<!-- Who should agents escalate to when they encounter an ambiguous situation? -->
+
+Escalate to: <!-- [Name / Role] via [channel] -->

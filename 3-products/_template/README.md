@@ -14,8 +14,10 @@
 
 | File | Purpose |
 |------|---------|
-| `1-overview.md` | What it is, who it's for, current status |
-| `2-architecture.md` | How it's built — tech stack, components, data flow |
+| `1-overview.md` | What it is, who it’s for, current status, and **agent navigation guide** |
+| `2-architecture.md` | How it’s built — tech stack, components, data flow |
 | `3-decisions/` | Architecture Decision Records |
-| `4-roadmap.md` | Where it's going |
+| `4-roadmap.md` | Where it’s going |
 | `5-api.md` | API reference (if applicable) |
+
+> **Note for KB builders:** `1-overview.md` includes a `## Purpose for Agents` section. Fill it in with navigation shortcuts and product-specific rules for AI agents. This is the first thing agents read when starting a task on this product.
