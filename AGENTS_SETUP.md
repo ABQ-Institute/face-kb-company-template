@@ -1,7 +1,7 @@
-# ABQ's EACF — Setup Instructions
+# ABQ's FACE — Setup Instructions
 
 > This file is temporary. Delete it after setup is complete.
-> Built on [ABQ's EACF](https://abq.institute/eacf) by [ABQ Institute](https://abq.institute).
+> Built on [ABQ's FACE](https://abq.institute/face) by [ABQ Institute](https://abq.institute).
 
 You are in **setup mode**. The `0-meta/kb-config.yaml` in this repo has `# TODO` markers — setup is not complete.
 
@@ -12,25 +12,25 @@ Tell the AI Lead: "Setup done. You can now delete `AGENTS_SETUP.md` from the rep
 
 ---
 
-# eacf-setup — First-Time KB Setup Guide
+# face-setup — First-Time KB Setup Guide
 
 ## What This Skill Does
 
-Guides an AI Lead through the complete first-time setup of a knowledge base using the Enterprise AI Context Framework. Covers platform selection, KB creation, configuration, and first agent initialisation.
+Guides an AI Lead through the complete first-time setup of a knowledge base using the Framework for AI Context in Enterprise. Covers platform selection, KB creation, configuration, and first agent initialisation.
 
-**This skill is used once per organisation (Phase 1 only).** After setup is complete, uninstall this skill — agents use `eacf-kb` for all ongoing operations.
+**This skill is used once per organisation (Phase 1 only).** After setup is complete, uninstall this skill — agents use `face-kb` for all ongoing operations.
 
 ---
 
-## Two-Phase EACF Deployment Model
+## Two-Phase FACE Deployment Model
 
-EACF deployment is split into two distinct phases:
+FACE deployment is split into two distinct phases:
 
 ### Phase 1 — Company Setup *(this skill)*
 
 **Who:** AI Lead (one person per organisation)
 **When:** Once, before any agents go live
-**Tool:** `eacf-setup` skill
+**Tool:** `face-setup` skill
 
 Steps:
 1. Answer 4 platform questions (existing docs, technical capability, scale, notifications)
@@ -41,18 +41,18 @@ Steps:
 
 Output: a working KB with `0-meta/kb-config.yaml` in place.
 
-**Uninstall `eacf-setup` when Phase 1 is complete.** It is not needed again unless the organisation migrates platforms.
+**Uninstall `face-setup` when Phase 1 is complete.** It is not needed again unless the organisation migrates platforms.
 
-### Phase 2 — Agent Deployment *(eacf-kb skill)*
+### Phase 2 — Agent Deployment *(face-kb skill)*
 
 **Who:** Each agent or user that needs KB access
 **When:** After Phase 1 is complete
-**Tool:** `eacf-kb` skill
+**Tool:** `face-kb` skill
 
 Steps:
-1. Install `eacf-kb` on the agent
+1. Install `face-kb` on the agent
 2. Set `KB_LOCATION` in the agent's config (URL of the KB repo/space)
-3. Agent boots → reads `kb-config.yaml` → loads `eacf-kb-core` → `eacf-kb-write` → platform skill → ready
+3. Agent boots → reads `kb-config.yaml` → loads `face-kb-core` → `face-kb-write` → platform skill → ready
 
 Output: agent reads and writes KB with full source-of-truth protocol.
 
@@ -60,9 +60,9 @@ Output: agent reads and writes KB with full source-of-truth protocol.
 
 ## When to Use This Skill
 
-- Organisation is adopting EACF for the first time
+- Organisation is adopting FACE for the first time
 - AI Lead needs to set up the KB and configure the first agent
-- During or after an EACF workshop
+- During or after an FACE workshop
 
 ---
 
@@ -72,7 +72,7 @@ Depending on when and how the AI Lead sets up, there are three routes:
 
 ### Route A — Guided Setup During Workshop
 
-**When:** During an EACF training session with ABQ facilitators present.
+**When:** During an FACE training session with ABQ facilitators present.
 
 **How it works:**
 1. AI Lead interacts with the workshop agent in a dedicated channel
@@ -90,11 +90,11 @@ Depending on when and how the AI Lead sets up, there are three routes:
 
 **How it works:**
 1. AI Lead opens any AI tool (Claude, ChatGPT, Copilot, internal agent — anything)
-2. Pastes the EACF Setup Prompt (provided below) into the conversation
+2. Pastes the FACE Setup Prompt (provided below) into the conversation
 3. The AI walks them through the Platform Assessment
 4. AI Lead creates the KB repository/space manually (following the generated instructions)
 5. AI Lead copies the generated `kb-config.yaml` into `0-meta/`
-6. AI Lead configures their first agent with `KB_LOCATION` + `eacf-kb` skill
+6. AI Lead configures their first agent with `KB_LOCATION` + `face-kb` skill
 
 **Advantages:** No dependency on ABQ. Works with any AI tool. Self-paced.
 
@@ -237,7 +237,7 @@ Enable branch protection on `main`:
 - Require at least 1 approval
 - No direct pushes
 
-**Reference script available:** After setup, agents can use `eacf-kb-git/scripts/kb_write.py` to create branches and PRs programmatically. See `eacf-kb-git` for details.
+**Reference script available:** After setup, agents can use `face-kb-git/scripts/kb_write.py` to create branches and PRs programmatically. See `face-kb-git` for details.
 
 ### For MCP-based KB
 
@@ -273,7 +273,7 @@ Two templates are available depending on the platform. Use the appropriate one.
 
 ### Git Template
 
-Reference: `eacf-kb-git/templates/kb-config-git.yaml`
+Reference: `face-kb-git/templates/kb-config-git.yaml`
 
 ```yaml
 kb:
@@ -301,7 +301,7 @@ skills:
 
 ### MCP Template
 
-Reference: `eacf-kb-mcp/templates/kb-config-mcp.yaml`
+Reference: `face-kb-mcp/templates/kb-config-mcp.yaml`
 
 ```yaml
 kb:
@@ -355,10 +355,10 @@ Add to the agent's configuration:
 KB_LOCATION: https://github.com/your-org/knowledge-base
 ```
 
-And assign the `eacf-kb` skill. How this is done depends on the platform:
+And assign the `face-kb` skill. How this is done depends on the platform:
 - **AGENTS.md:** Add skill reference and KB_LOCATION
-- **System prompt:** Include the eacf-kb SKILL.md content + KB_LOCATION
-- **Skill config:** Upload eacf-kb skill files
+- **System prompt:** Include the face-kb SKILL.md content + KB_LOCATION
+- **Skill config:** Upload face-kb skill files
 
 ### Step 3: Verify
 
@@ -366,7 +366,7 @@ Ask the agent:
 > "Where is the knowledge base and what platform is it on?"
 
 Expected response:
-> "The KB is at [URL], running on [git/mcp]. I've loaded eacf-kb-core, eacf-kb-write, and eacf-kb-[git/mcp]. Ready to work."
+> "The KB is at [URL], running on [git/mcp]. I've loaded face-kb-core, face-kb-write, and face-kb-[git/mcp]. Ready to work."
 
 ### Step 4: Populate
 
@@ -384,7 +384,7 @@ For MCP: the agent creates drafts — AI Lead reviews and publishes.
 Send this to the organisation before the workshop:
 
 ```
-EACF Pre-Workshop Assessment
+FACE Pre-Workshop Assessment
 ────────────────────────────
 
 1. What documentation/wiki system do you currently use?
@@ -405,13 +405,13 @@ EACF Pre-Workshop Assessment
 
 ---
 
-## EACF Setup Prompt (Route B)
+## FACE Setup Prompt (Route B)
 
 AI Lead can paste this into any AI tool for self-guided setup:
 
 ```
 I'm setting up a knowledge base using the Enterprise AI Context 
-Framework (EACF). I need you to help me:
+Framework (FACE). I need you to help me:
 
 1. Choose the right platform (Git or MCP-based) by asking me 
    about my current documentation setup, whether it's Cloud or 
@@ -457,20 +457,20 @@ Next: Phase 2 — Deploy agents
 
 For each agent that needs KB access:
 
-1. Install the `eacf-kb` skill
+1. Install the `face-kb` skill
 2. Add to agent config:
       KB_LOCATION: [KB_URL]
 3. Verify with: "Where is the KB and what platform is it on?"
 
-Skills loaded automatically by eacf-kb:
-  - eacf-kb-core  (source of truth + structural rules)
-  - eacf-kb-write (content routing + extraction)
-  - eacf-kb-git   (if platform=git)
-  - eacf-kb-mcp   (if platform=mcp)
+Skills loaded automatically by face-kb:
+  - face-kb-core  (source of truth + structural rules)
+  - face-kb-write (content routing + extraction)
+  - face-kb-git   (if platform=git)
+  - face-kb-mcp   (if platform=mcp)
 
 ─────────────────────────────────────────
-Remove `eacf-setup` from this agent — it is no longer needed.
-If you ever migrate platforms, re-run eacf-setup at that time.
+Remove `face-setup` from this agent — it is no longer needed.
+If you ever migrate platforms, re-run face-setup at that time.
 ```
 
 ---
