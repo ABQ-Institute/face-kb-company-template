@@ -1,6 +1,6 @@
 ---
-description: EACF Knowledge Base agent instructions — loaded for all sessions in this repository
+description: FACE Knowledge Base agent instructions — loaded for all sessions in this repository
 alwaysApply: true
 ---
 
-Before doing any work, read `AGENTS_BOOT.md` in this repository root. It contains your full operating instructions as an EACF-configured agent. Apply everything in it.
+Before doing any work, read `AGENTS_BOOT.md` in this repository root. It contains your full operating instructions as an FACE-configured agent. Apply everything in it.
