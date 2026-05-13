@@ -1,12 +1,12 @@
 # FACE Company Knowledge Base
 
-> Built on [ABQ's FACE](https://abq.institute/eacf) — the Framework for AI COntext in Enterprise by [ABQ Institute](https://abq.institute).
+> Built on [ABQ's FACE](https://abq.institute/face) — the Framework for AI COntext in Enterprise by [ABQ Institute](https://abq.institute).
 
 ---
 
 ## What this is
 
-A structured knowledge base template built on EACF. Clone it, fill it in, and your AI agents know who you are, what you build, and how you work — from day one.
+A structured knowledge base template built on FACE. Clone it, fill it in, and your AI agents know who you are, what you build, and how you work — from day one.
 
 No configuration wizards. No integrations to set up. Just a folder your agents understand.
 
@@ -29,7 +29,7 @@ Each layer has a `_template/` subfolder. Copy it to add a department, product, o
 2. Clone it locally
 3. Open any AI tool (Claude Code, Cursor, Gemini, Copilot) in the repo root
 4. Start with this prompt:
-   > "Read AGENTS_SETUP.md and guide me through setting up this EACF knowledge base."
+   > "Read AGENTS_SETUP.md and guide me through setting up this FACE knowledge base."
 5. The agent checks `kb-config.yaml` → reads `AGENTS_SETUP.md` (setup mode) or `AGENTS_BOOT.md` (operations mode)
 6. Fill in the template files with your actual content
 7. Your agents have context. Start working.
@@ -49,11 +49,11 @@ Each layer has a `_template/` subfolder. Copy it to add a department, product, o
 | Claude Code | `CLAUDE.md` |
 | OpenAI Codex | `AGENTS.md` |
 | Gemini CLI | `GEMINI.md` |
-| Cursor | `.cursor/rules/eacf.mdc` |
+| Cursor | `.cursor/rules/face.mdc` |
 | GitHub Copilot | `.github/copilot-instructions.md` |
 
 All files point to `AGENTS_BOOT.md` — one place to update, all tools stay in sync.
 
 ---
 
-*Built by [ABQ Institute](https://abq.institute) · [ABQ's EACF](https://abq.institute/eacf)*
+*Built by [ABQ Institute](https://abq.institute) · [ABQ's FACE](https://abq.institute/face)*
