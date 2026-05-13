@@ -23,10 +23,10 @@ data_status: placeholder
 
 | Skill | Purpose | Mode |
 |-------|---------|------|
-| `eacf-kb` | KB access + source-of-truth protocol | Always |
-| `eacf-kb-core` | Structural rules | Auto-loaded |
-| `eacf-kb-write` | Content routing | Auto-loaded |
-| `eacf-kb-git` | Git operations | Auto-loaded |
+| `face-kb` | KB access + source-of-truth protocol | Always |
+| `face-kb-core` | Structural rules | Auto-loaded |
+| `face-kb-write` | Content routing | Auto-loaded |
+| `face-kb-git` | Git operations | Auto-loaded |
 | <!-- custom skill --> | <!-- purpose --> | <!-- when --> |
 
 ## Permissions
