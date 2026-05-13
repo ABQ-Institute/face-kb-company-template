@@ -1,4 +1,4 @@
-# ABQ's EACF — Agent Instructions for GitHub Copilot
+# ABQ's FACE — Agent Instructions for GitHub Copilot
 
 > All agent logic lives in one of two files. Read the right one.
 
