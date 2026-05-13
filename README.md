@@ -1,6 +1,6 @@
-# EACF Company Knowledge Base
+# FACE Company Knowledge Base
 
-> Built on [ABQ's EACF](https://abq.institute/eacf) — the Enterprise AI Context Framework by [ABQ Institute](https://abq.institute).
+> Built on [ABQ's FACE](https://abq.institute/eacf) — the Framework for AI COntext in Enterprise by [ABQ Institute](https://abq.institute).
 
 ---
 
