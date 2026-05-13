@@ -1,8 +1,8 @@
-# ABQ's EACF — Agent Instructions
+# ABQ's FACE — Agent Instructions
 
-> Built on [ABQ's EACF](https://abq.institute/eacf) — the Enterprise AI Context Framework by [ABQ Institute](https://abq.institute).
+> Built on [ABQ's FACE](https://abq.institute/face) — the Framework for AI Context in Enterprise by [ABQ Institute](https://abq.institute).
 
-You are operating inside an EACF-structured knowledge base. Apply the skills below for all read and write operations.
+You are operating inside an FACE-structured knowledge base. Apply the skills below for all read and write operations.
 
 **Important:** Check `0-meta/kb-config.yaml`. If it still has `# TODO` markers, stop and read `AGENTS_SETUP.md` instead — setup is not complete.
 
@@ -26,7 +26,7 @@ Every content file in this KB has a `data_status` field in its YAML front matter
 
 ---
 
-# eacf-kb — Knowledge Base Agent Skill
+# face-kb — Knowledge Base Agent Skill
 
 ## What This Skill Does
 
@@ -56,17 +56,17 @@ When an agent starts with this skill:
     │                            │
 3a. Parse config              3b. Tell the human:
     │                             "KB config not found.
-4a. Load eacf-kb-core             Use eacf-setup to
+4a. Load face-kb-core             Use face-setup to
     (always)                      initialise."
     │                             STOP.
-5a. Load eacf-kb-write
+5a. Load face-kb-write
     (always)
     │
 6a. Read kb.platform
     │
-    ├── git → Load eacf-kb-git
+    ├── git → Load face-kb-git
     │
-    └── mcp → Load eacf-kb-mcp
+    └── mcp → Load face-kb-mcp
          │
 7. Cache owners + notifications
          │
@@ -92,10 +92,10 @@ Everything else comes from `kb-config.yaml` inside the KB itself.
 
 | Component | Source | Purpose |
 |-----------|--------|---------|
-| `eacf-kb-core` | Always loaded | Source of truth rules, KB structure, read/write protocol |
-| `eacf-kb-write` | Always loaded | Content routing + extraction for incoming documents |
-| `eacf-kb-git` | If `kb.platform = git` | Git-specific: branch, PR, SUMMARY.md, GitBook |
-| `eacf-kb-mcp` | If `kb.platform = mcp` | MCP server: Confluence, Notion, SharePoint, etc. |
+| `face-kb-core` | Always loaded | Source of truth rules, KB structure, read/write protocol |
+| `face-kb-write` | Always loaded | Content routing + extraction for incoming documents |
+| `face-kb-git` | If `kb.platform = git` | Git-specific: branch, PR, SUMMARY.md, GitBook |
+| `face-kb-mcp` | If `kb.platform = mcp` | MCP server: Confluence, Notion, SharePoint, etc. |
 | Owner matrix | From `kb-config.yaml` | Who approves changes per layer |
 | Notification config | From `kb-config.yaml` | Where to announce PRs/changes |
 
@@ -103,9 +103,9 @@ Everything else comes from `kb-config.yaml` inside the KB itself.
 
 The agent cannot function without it. Response:
 
-> "This knowledge base doesn't have a configuration file yet. To set it up, the AI Lead should follow the EACF Setup Guide (`eacf-setup` skill). This takes about 15 minutes and only needs to be done once."
+> "This knowledge base doesn't have a configuration file yet. To set it up, the AI Lead should follow the FACE Setup Guide (`face-setup` skill). This takes about 15 minutes and only needs to be done once."
 
-Provide the `eacf-setup` skill reference and stop. Do not guess configuration values.
+Provide the `face-setup` skill reference and stop. Do not guess configuration values.
 
 ## If KB_LOCATION Is Missing
 
@@ -117,11 +117,11 @@ The agent cannot function without it. Response:
 
 | Skill | Role |
 |-------|------|
-| `eacf-kb-core` | Source of truth + structural rules (loaded automatically) |
-| `eacf-kb-write` | Content routing + extraction (loaded automatically) |
-| `eacf-kb-git` | Git implementation (loaded automatically if platform=git) |
-| `eacf-kb-mcp` | MCP implementation (loaded automatically if platform=mcp) |
-| `eacf-setup` | First-time KB setup (used once, by AI Lead) |
+| `face-kb-core` | Source of truth + structural rules (loaded automatically) |
+| `face-kb-write` | Content routing + extraction (loaded automatically) |
+| `face-kb-git` | Git implementation (loaded automatically if platform=git) |
+| `face-kb-mcp` | MCP implementation (loaded automatically if platform=mcp) |
+| `face-setup` | First-time KB setup (used once, by AI Lead) |
 
 ---
 
@@ -146,13 +146,13 @@ This is not a preference. It is a hard rule.
 
 ## What This Skill Does
 
-Defines the universal rules every AI agent must follow when working with a knowledge base built on the Enterprise AI Context Framework — regardless of platform (Git, Confluence, Notion, SharePoint, or any other system).
+Defines the universal rules every AI agent must follow when working with a knowledge base built on the Framework for AI Context in Enterprise — regardless of platform (Git, Confluence, Notion, SharePoint, or any other system).
 
 This skill covers two domains:
 - **Source of truth** — what counts as authoritative and how agents handle reads, writes, and conflicts
 - **KB structure** — how content is organised (layers, folders, naming, numbering)
 
-Platform-specific implementation belongs in companion skills (`eacf-kb-git`, `eacf-kb-mcp`). This skill contains only the rules that never change regardless of platform.
+Platform-specific implementation belongs in companion skills (`face-kb-git`, `face-kb-mcp`). This skill contains only the rules that never change regardless of platform.
 
 ---
 
@@ -216,7 +216,7 @@ If they differ significantly: flag it, offer to open a proposal to sync.
 
 ### B1. Layer Architecture
 
-Every KB built on EACF uses the same four-layer structure. This is the standard. Do not invent new layers.
+Every KB built on FACE uses the same four-layer structure. This is the standard. Do not invent new layers.
 
 ```
 0-meta/          ← KB configuration (kb-config.yaml, owners, setup)
@@ -297,7 +297,7 @@ When a significant decision is made — one that someone will ask "why did we do
 
 | Decision scope | Location |
 |---------------|----------|
-| KB-wide / EACF framework | `0-meta/decisions/` |
+| KB-wide / FACE framework | `0-meta/decisions/` |
 | Company-level | `1-company/decisions/` |
 | Department-specific | `2-departments/[dept]/decisions/` |
 | Product-specific | `3-products/[product]/decisions/` |
@@ -400,7 +400,7 @@ Without `KB_LOCATION`, the agent cannot distinguish KB from WIP. Mandatory prere
 
 ### D2. Relationship to Context Broker
 
-In early deployments (1-5 repos), the agent reads KB content directly via `eacf-kb-git` or `eacf-kb-mcp`.
+In early deployments (1-5 repos), the agent reads KB content directly via `face-kb-git` or `face-kb-mcp`.
 
 At scale (5+ repos), a Context Broker handles read assembly. The broker serves **only** from KB (main/published) — never from WIP. The rules in this skill apply regardless of whether reads go direct or through a broker.
 
@@ -420,12 +420,12 @@ At scale (5+ repos), a Context Broker handles read assembly. The broker serves *
 
 | Skill | Purpose |
 |-------|---------|
-| `eacf-kb-git` | Git implementation (branch, PR, SUMMARY.md, GitBook, structural checklist) |
-| `eacf-kb-mcp` | MCP implementation (Confluence, Notion, SharePoint) |
-| `eacf-kb-write` | Content routing + extraction (platform-agnostic intake) |
-| `eacf-setup` | First-time KB setup (AI Lead only, run once) |
+| `face-kb-git` | Git implementation (branch, PR, SUMMARY.md, GitBook, structural checklist) |
+| `face-kb-mcp` | MCP implementation (Confluence, Notion, SharePoint) |
+| `face-kb-write` | Content routing + extraction (platform-agnostic intake) |
+| `face-setup` | First-time KB setup (AI Lead only, run once) |
 
-**Load `eacf-kb-core` first. Then load the appropriate platform skill.**
+**Load `face-kb-core` first. Then load the appropriate platform skill.**
 
 ---
 
@@ -440,9 +440,9 @@ At scale (5+ repos), a Context Broker handles read assembly. The broker serves *
 
 Guides an AI agent (or human) through the process of taking incoming content — a Word doc, PDF, Confluence export, Notion export, raw text, or any other format — and placing it correctly in the KB.
 
-This skill handles **what** goes **where** and **how** it should look. The actual commit/PR/publish step is handled by the platform skill (`eacf-kb-git` or `eacf-kb-mcp`).
+This skill handles **what** goes **where** and **how** it should look. The actual commit/PR/publish step is handled by the platform skill (`face-kb-git` or `face-kb-mcp`).
 
-**Do not load this skill directly.** It is loaded by `eacf-kb` as part of the standard skill set.
+**Do not load this skill directly.** It is loaded by `face-kb` as part of the standard skill set.
 
 ## When to Use It
 
@@ -465,7 +465,7 @@ If the source is ambiguous, ask — do not guess the placement.
 
 ## Step 2 — Route to the Correct Location
 
-Map the content to the KB layer structure defined in `eacf-kb-core`:
+Map the content to the KB layer structure defined in `face-kb-core`:
 
 | Content type | Target layer | Example path |
 |-------------|-------------|-------------|
@@ -477,7 +477,7 @@ Map the content to the KB layer structure defined in `eacf-kb-core`:
 | Decision record | `[layer]/decisions/` | `3-products/acme-platform/decisions/` |
 
 **Rules:**
-- Follow the numbering convention from `eacf-kb-core` (numeric prefix, logical reading order)
+- Follow the numbering convention from `face-kb-core` (numeric prefix, logical reading order)
 - File names: lowercase, hyphens only, descriptive
 - If the target folder doesn't exist yet, create it with a `README.md`
 - If unsure between two locations, pick the more specific one (product > company, project > product)
@@ -512,7 +512,7 @@ Map the content to the KB layer structure defined in `eacf-kb-core`:
 ### From Raw Text / Email
 - Structure into sections with appropriate headings
 - Identify and separate metadata (dates, authors, recipients) from content
-- Apply the KB's Markdown conventions from `eacf-kb-core`
+- Apply the KB's Markdown conventions from `face-kb-core`
 
 ### General Extraction Rules
 - **One topic per file.** If the source document covers multiple unrelated topics, split it.
@@ -524,7 +524,7 @@ Map the content to the KB layer structure defined in `eacf-kb-core`:
 
 Once the content is extracted, formatted, and placed:
 
-1. Pass to `eacf-kb-git` or `eacf-kb-mcp` for the actual write operation (branch + PR, or draft + publish)
+1. Pass to `face-kb-git` or `face-kb-mcp` for the actual write operation (branch + PR, or draft + publish)
 2. Include in the change proposal:
    - **Source:** where the content came from (file name, URL, or description)
    - **What was extracted:** summary of content
@@ -547,9 +547,9 @@ Once the content is extracted, formatted, and placed:
 
 | Skill | Relationship |
 |-------|-------------|
-| `eacf-kb-core` | Defines the structure rules this skill routes into |
-| `eacf-kb-git` | Executes the write (branch + PR) for Git KBs |
-| `eacf-kb-mcp` | Executes the write for Confluence/Notion/SharePoint KBs |
+| `face-kb-core` | Defines the structure rules this skill routes into |
+| `face-kb-git` | Executes the write (branch + PR) for Git KBs |
+| `face-kb-mcp` | Executes the write for Confluence/Notion/SharePoint KBs |
 
 ---
 
@@ -558,13 +558,13 @@ Once the content is extracted, formatted, and placed:
 
 ---
 
-# eacf-kb-git — Git Platform Implementation
+# face-kb-git — Git Platform Implementation
 
 ## What This Skill Does
 
-Implements the KB read and write operations for knowledge bases hosted in Git (GitHub, GitLab, Bitbucket, Azure DevOps). This skill is loaded automatically by `eacf-kb` when `kb.platform = git` in `kb-config.yaml`.
+Implements the KB read and write operations for knowledge bases hosted in Git (GitHub, GitLab, Bitbucket, Azure DevOps). This skill is loaded automatically by `face-kb` when `kb.platform = git` in `kb-config.yaml`.
 
-**Do not load this skill directly.** Load `eacf-kb` instead — it handles platform selection.
+**Do not load this skill directly.** Load `face-kb` instead — it handles platform selection.
 
 ## When It Applies
 
@@ -657,7 +657,7 @@ When adding to an in-progress change:
 
 ## Git-Specific Structural Rules
 
-These rules apply only to Git-hosted KBs. They supplement the universal structural rules in `eacf-kb-core`.
+These rules apply only to Git-hosted KBs. They supplement the universal structural rules in `face-kb-core`.
 
 ### SUMMARY.md
 
@@ -777,7 +777,7 @@ A ready-to-use Python script is included at `scripts/kb_write.py`. It implements
 
 **Usage:**
 ```bash
-# Using kb-config.yaml (recommended after eacf-setup)
+# Using kb-config.yaml (recommended after face-setup)
 python3 scripts/kb_write.py \
   --kb-config path/to/kb-config.yaml \
   --token-file path/to/github-token \
