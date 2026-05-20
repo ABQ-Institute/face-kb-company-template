@@ -1,7 +1,7 @@
-# EACF Agent Instructions for Cursor
+# FACE Agent Instructions for Cursor
 
 > ⚠️ `.cursorrules` is deprecated as of Cursor 2.2.
-> The active Cursor rule is at `.cursor/rules/eacf.mdc` (alwaysApply: true).
+> The active Cursor rule is at `.cursor/rules/face.mdc` (alwaysApply: true).
 > This file is kept for backward compatibility only.
 
 @AGENTS_BOOT.md
