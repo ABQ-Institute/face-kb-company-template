@@ -1,9 +1,9 @@
-# Codex project configuration for EACF Knowledge Base
+# Codex project configuration for FACE Knowledge Base
 #
 # Tells Codex to also load AGENTS_BOOT.md as a fallback instruction source
 # at each directory level (in addition to AGENTS.md).
 # This allows AGENTS_BOOT.md to serve as the single source of truth for
-# EACF agent instructions across all agent platforms.
+# FACE agent instructions across all agent platforms.
 
 project_doc_fallback_filenames = ["AGENTS_BOOT.md"]
 
