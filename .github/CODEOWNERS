@@ -1,0 +1,6 @@
+# CODEOWNERS — face-kb-company-template
+#
+# All three ABQ founders are code owners of the entire repository.
+# Any of them can approve pull requests.
+
+* @aerimescu @MS-ABQ @valmuresan
