@@ -38,4 +38,4 @@ What changes as a result.
 
 | # | Title | Date | Status |
 |---|-------|------|--------|
-| — | *(no decisions recorded yet)* | — | — |
+| ADR-001 | [LGPL Licensing and Architecture Boundary Design](adr-001-lgpl-licensing-and-architecture.md) | 07/05/2026 | Accepted |
