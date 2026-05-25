@@ -2,23 +2,35 @@
 # ─────────────────────────────────
 # Fill in every TODO value, then open a PR to apply.
 # Your AI agent will guide you through this if you ask.
+#
+# Schema: ADR-KBM-007 (FACE owns intent, GitHub owns enforcement).
+# CODEOWNERS and branch protection are auto-derived from the
+# `admins:` and `owners.<layer>:` blocks below — never hand-edit
+# .github/CODEOWNERS; edit this file instead.
 
 kb:
   name: # TODO: Your Organisation Knowledge Base
-  platform: git
   main_ref: main
   language: en  # Change if needed: ro, de, fr, es, etc.
-  repository: # TODO: https://github.com/your-org/your-kb-repo
   org_type: # TODO: startup | scaleup | enterprise
   # startup    → founders.md + advisors.md in 1-company/2-structure/
   # scaleup    → founders.md + advisors.md + leadership.md
   # enterprise → leadership.md + key-roles.md only
 
+admins:
+  # TODO: GitHub usernames of KB-wide admins. These people review
+  # any layer + appear in CODEOWNERS as the catch-all reviewers.
+  # At least one entry required.
+  # - github-username
+
 owners:
-  1-company: # TODO: GitHub username — approves company-layer changes
-  2-departments: # TODO: GitHub username (can be same person)
-  3-products: # TODO: GitHub username
-  4-projects: # TODO: GitHub username
+  # Per-layer reviewers. Each value can be a single GitHub username
+  # (scalar) or a list (array). Use arrays when more than one
+  # person should be able to approve changes for that layer.
+  1-company: # TODO: GitHub username, or [user-a, user-b]
+  2-departments: # TODO: GitHub username, or [user-a, user-b]
+  3-products: # TODO: GitHub username, or [user-a, user-b]
+  4-projects: # TODO: GitHub username, or [user-a, user-b]
 
 notifications:
   channel: # TODO: '#kb-updates' (Slack channel) or email@example.com

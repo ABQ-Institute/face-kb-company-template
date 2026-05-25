@@ -8,6 +8,34 @@ You are operating inside an FACE-structured knowledge base. Apply the skills bel
 
 ---
 
+## Skills Bundle Version
+
+**Embedded version:** `2026-05-25`
+**Canonical source:** [`abq-knowledge-base/3-products/face/7-skills/SKILLS_VERSION`](https://github.com/ABQ-Institute/abq-knowledge-base/blob/main/3-products/face/7-skills/SKILLS_VERSION)
+**Marker file (machine-readable):** [`0-meta/.face-skills-version`](0-meta/.face-skills-version)
+
+The four skills embedded below (`face-kb`, `face-kb-core`, `face-kb-write`, `face-kb-git`) are a snapshot of the canonical FACE skills as of the embedded version above. Skills evolve when an ADR shifts the architecture — for example, this snapshot reflects ADR-KBM-007's hybrid access model (FACE owns intent, GitHub owns enforcement, CODEOWNERS is projector-derived).
+
+### Detecting drift
+
+The KB Manager surfaces skill-bundle drift automatically as a non-dismissable banner with a one-click "refresh skills" PR (ADR-KBM-007 §6 drift-banner pattern).
+
+If you're not using the KB Manager, check manually:
+
+```bash
+LOCAL=$(grep -v '^#' 0-meta/.face-skills-version | grep -v '^$' | tail -1)
+CANONICAL=$(curl -s https://raw.githubusercontent.com/ABQ-Institute/abq-knowledge-base/main/3-products/face/7-skills/SKILLS_VERSION \
+  | grep -v '^#' | grep -v '^$' | tail -1)
+echo "Local:     $LOCAL"
+echo "Canonical: $CANONICAL"
+```
+
+If they differ, the embedded skills below are outdated. Refresh by replacing each skill section with the matching `SKILL.md` from the canonical repo at
+[`abq-knowledge-base/3-products/face/7-skills/`](https://github.com/ABQ-Institute/abq-knowledge-base/tree/main/3-products/face/7-skills),
+then bump `0-meta/.face-skills-version` to match. Commit + PR; CODEOWNERS routes the review to the KB admins.
+
+---
+
 ## Data Status Convention
 
 Every content file in this KB has a `data_status` field in its YAML front matter. It declares how reliable the content is.
@@ -62,13 +90,16 @@ When an agent starts with this skill:
 5a. Load face-kb-write
     (always)
     │
-6a. Read kb.platform
+6a. Infer platform from KB_LOCATION
+    │   (github.com / gitlab.com / bitbucket / azure DevOps URL → git;
+    │    MCP server URL → mcp). Legacy configs may carry kb.platform;
+    │    readers tolerate it but the shape above is authoritative.
     │
     ├── git → Load face-kb-git
     │
     └── mcp → Load face-kb-mcp
          │
-7. Cache owners + notifications
+7. Cache admins + owners + notifications
          │
     READY
 ```
@@ -94,9 +125,9 @@ Everything else comes from `kb-config.yaml` inside the KB itself.
 |-----------|--------|---------|
 | `face-kb-core` | Always loaded | Source of truth rules, KB structure, read/write protocol |
 | `face-kb-write` | Always loaded | Content routing + extraction for incoming documents |
-| `face-kb-git` | If `kb.platform = git` | Git-specific: branch, PR, SUMMARY.md, GitBook |
-| `face-kb-mcp` | If `kb.platform = mcp` | MCP server: Confluence, Notion, SharePoint, etc. |
-| Owner matrix | From `kb-config.yaml` | Who approves changes per layer |
+| `face-kb-git` | If `KB_LOCATION` is a git URL | Git-specific: branch, PR, SUMMARY.md, GitBook |
+| `face-kb-mcp` | If `KB_LOCATION` is an MCP server | MCP server: Confluence, Notion, SharePoint, etc. |
+| Admins + owners | From `kb-config.yaml` | KB-wide admins (`admins:`) + per-layer owners (`owners.<layer>`); see ADR-KBM-007 |
 | Notification config | From `kb-config.yaml` | Where to announce PRs/changes |
 
 ## If kb-config.yaml Is Missing
@@ -122,11 +153,6 @@ The agent cannot function without it. Response:
 | `face-kb-git` | Git implementation (loaded automatically if platform=git) |
 | `face-kb-mcp` | MCP implementation (loaded automatically if platform=mcp) |
 | `face-setup` | First-time KB setup (used once, by AI Lead) |
-
----
-
-*Owner: Luna @ ABQ | Last updated: 16/04/2026*
-
 
 ---
 
@@ -165,7 +191,7 @@ Every piece of information in an organisation exists in exactly one of two state
 | State | Where | What it means |
 |-------|-------|---------------|
 | **Truth** | KB — main/published branch | Approved, reviewed, authoritative. Cite freely. |
-| **WIP** | Everywhere else | Draft, unreviewed, secondary. Always label as such. |
+| **Work in Progress (WIP)** | Everywhere else | Draft, unreviewed, secondary. Always label as such. |
 
 There is no middle ground. "Mostly done", "basically approved", "we all agreed on Slack" — still WIP. Until it is in the KB, it is not truth.
 
@@ -391,12 +417,17 @@ A pending proposal/PR/draft — even if reviewed but not yet approved — is sti
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `KB_LOCATION` | Where the KB lives | GitHub repo URL, Confluence space URL |
-| `KB_PLATFORM` | Platform skill to load | `git` or `mcp` |
-| `KB_MAIN_REF` | Authoritative branch/state | `main`, `published` |
-| `OWNER_MATRIX` | Who approves per layer | Map of layer → person/role |
-| `NOTIFY_CHANNEL` | Where to send review notifications | Slack channel, email |
+| `KB_MAIN_REF` | Authoritative branch/state (also read from `kb-config.yaml`) | `main`, `published` |
+| `NOTIFY_CHANNEL` | Where to send review notifications (also in `kb-config.yaml`) | Slack channel, email |
 
 Without `KB_LOCATION`, the agent cannot distinguish KB from WIP. Mandatory prerequisite.
+
+The platform implementation (`face-kb-git` vs `face-kb-mcp`) is
+chosen by the parent `face-kb` skill from the shape of
+`KB_LOCATION`, not from a config key — `kb.platform` was dropped
+by ADR-KBM-007. The admin + owner matrix is read straight from
+`kb-config.yaml`'s `admins:` and `owners.<layer>:` blocks; see
+§E below.
 
 ### D2. Relationship to Context Broker
 
@@ -406,11 +437,88 @@ At scale (5+ repos), a Context Broker handles read assembly. The broker serves *
 
 ---
 
+## Part E — Access & Governance (ADR-KBM-007)
+
+FACE separates **intent** from **enforcement**. Agents working on
+a KB need to understand which surface owns which concern.
+
+### E1. The hybrid contract
+
+- **FACE owns intent** through three surfaces: the KB Manager's
+  `organization_members` (who's in the org), `kb_access` (who
+  has what role on which KB), and `kb-config.yaml`'s `admins:`
+  + `owners.<layer>:` blocks (the spec).
+- **GitHub owns enforcement** through repo collaborators,
+  `.github/CODEOWNERS`, and branch protection.
+- **Sync is one-way: FACE → GitHub** via a pure projector
+  function. Edits to the intent surfaces propagate forward;
+  edits to the enforcement surfaces (e.g., a hand-edited
+  CODEOWNERS) are not reverse-synced and surface as drift.
+
+### E2. `kb-config.yaml` is the spec
+
+The canonical shape (post-ADR-007):
+
+```yaml
+kb:
+  name: My Organisation KB
+  main_ref: main
+  language: en
+  org_type: scaleup            # startup | scaleup | enterprise
+
+admins:                         # KB-wide admins (review any layer)
+  - alice
+  - bob
+
+owners:                         # path-scoped layer reviewers
+  1-company:     [ceo]
+  2-departments: [dept-lead, co-lead]   # arrays are first-class
+  3-products:    pm-1                    # scalar is also valid
+  4-projects:    [lead]
+
+notifications:
+  channel: '#kb-updates'
+  method: slack
+```
+
+`kb.platform` and `kb.repository` were removed as redundant
+(ADR-KBM-007 §4); legacy configs may still carry them and
+readers tolerate them, but the projector ignores them on
+write.
+
+### E3. CODEOWNERS is derived
+
+`.github/CODEOWNERS` is regenerated from `admins:` and
+`owners.<layer>:` on every spec change. **Never hand-edit it.**
+Hand-edits are wiped on the next sync and silently break the
+intent-vs-enforcement contract. If approval routing needs to
+change, propose an edit to `kb-config.yaml` and the projector
+takes care of CODEOWNERS.
+
+### E4. Branch protection is enforced
+
+The PR + 1-codeowner-approval gate is a FACE governance
+contract, not a recommendation. Drift (e.g., "Require approval"
+toggled off on GitHub) surfaces as a non-dismissable admin-only
+banner in the KB Manager with a one-click apply. The agent
+should never disable this policy, even with admin permission.
+
+### E5. Drift banners
+
+If the KB Manager UI shows a drift banner ("CODEOWNERS
+mismatch," "branch protection loose," "admin missing from
+GitHub"), it means the intent surface and the enforcement
+surface have diverged. Resolution is one-click via the banner;
+don't try to fix it by editing GitHub directly.
+
+---
+
 ## Constraints
 
 - Never present WIP as truth — not under time pressure, not because "everyone knows it anyway"
 - Never merge/publish without human approval
 - Never bypass approval for "small" or "urgent" changes — the process exists for a reason
+- Never hand-edit `.github/CODEOWNERS` — it's projector-derived from `kb-config.yaml` (ADR-KBM-007 §E3)
 - If KB is unavailable, say so — do not silently fall back to WIP
 - All KB content must be written in the language defined in `kb-config.yaml → kb.language`
 
@@ -429,16 +537,11 @@ At scale (5+ repos), a Context Broker handles read assembly. The broker serves *
 
 ---
 
-*Owner: Luna @ ABQ | Last updated: 16/04/2026*
-
-
----
-
 # KB Write — Content Routing & Extraction
 
 ## What This Skill Does
 
-Guides an AI agent (or human) through the process of taking incoming content — a Word doc, PDF, Confluence export, Notion export, raw text, or any other format — and placing it correctly in the KB.
+Guides an AI agent (or human) through the process of taking incoming content — a Word doc, Portable Document Format (PDF), Confluence export, Notion export, raw text, or any other format — and placing it correctly in the KB.
 
 This skill handles **what** goes **where** and **how** it should look. The actual commit/PR/publish step is handled by the platform skill (`face-kb-git` or `face-kb-mcp`).
 
@@ -520,9 +623,27 @@ Map the content to the KB layer structure defined in `face-kb-core`:
 - **Remove duplicates.** If content already exists in the KB, update the existing page — do not create a second version.
 - **Flag conflicts.** If extracted content contradicts existing KB content, flag it — do not silently overwrite.
 
-## Step 4 — Handoff to Platform Skill
+## Step 4 — Reflection (mandatory)
 
-Once the content is extracted, formatted, and placed:
+Before handing off to the platform skill, evaluate the prepared content against these criteria:
+
+| # | Criterion | Question |
+|---|-----------|----------|
+| 1 | **Completeness** | Are all required sections present for this content type? |
+| 2 | **Accuracy** | Does the content contradict any existing KB page? |
+| 3 | **Placement** | Is the target KB layer and path correct per the routing rules above? |
+| 4 | **Format** | Does the Markdown follow KB conventions (headings, tables, naming)? |
+| 5 | **No duplication** | Is this content already present elsewhere in the KB? |
+
+For each criterion, assign: `pass` / `flag` (fixable issue) / `block` (requires human input).
+
+- Fix all `flag` items before proceeding.
+- If any criterion returns `block`, stop and surface the issue to the user — do not commit.
+- Append a one-line reflection summary to the change proposal: `[Reflection: X/5 criteria passed. Fixed: ...]`
+
+## Step 5 — Handoff to Platform Skill
+
+Once the content has passed the reflection step:
 
 1. Pass to `face-kb-git` or `face-kb-mcp` for the actual write operation (branch + PR, or draft + publish)
 2. Include in the change proposal:
@@ -530,6 +651,7 @@ Once the content is extracted, formatted, and placed:
    - **What was extracted:** summary of content
    - **Where it was placed:** KB path(s)
    - **Any conflicts or flags:** content that contradicts existing KB pages
+   - **Reflection summary:** result of Step 4
 
 ---
 
@@ -553,16 +675,11 @@ Once the content is extracted, formatted, and placed:
 
 ---
 
-*Owner: Luna @ ABQ | Last updated: 16/04/2026*
-
-
----
-
 # face-kb-git — Git Platform Implementation
 
 ## What This Skill Does
 
-Implements the KB read and write operations for knowledge bases hosted in Git (GitHub, GitLab, Bitbucket, Azure DevOps). This skill is loaded automatically by `face-kb` when `kb.platform = git` in `kb-config.yaml`.
+Implements the KB read and write operations for knowledge bases hosted in Git (GitHub, GitLab, Bitbucket, Azure DevOps). This skill is loaded automatically by `face-kb` when `KB_LOCATION` is a git URL.
 
 **Do not load this skill directly.** Load `face-kb` instead — it handles platform selection.
 
@@ -661,6 +778,12 @@ These rules apply only to Git-hosted KBs. They supplement the universal structur
 
 ### SUMMARY.md
 
+> **⛔ Hard rule — no exceptions:** When adding a new file, `SUMMARY.md` **must** be updated in the **same branch and same commit**. Never in a separate PR, never after the fact.
+>
+> **Why:** GitBook derives all page URLs exclusively from `SUMMARY.md`. A file that exists in the repo but is absent from `SUMMARY.md` will never appear in GitBook — the sync shows "Synced ✅" but the page returns "Not found". This is silent and hard to diagnose.
+>
+> **Symptom to recognise:** GitBook shows "Synced ✅" but the page URL returns "Not found" → SUMMARY.md entry is missing.
+
 `SUMMARY.md` at the repo root is the navigation file for GitBook (or similar doc renderers). Update it with **every structural change** (file added, renamed, moved, or deleted).
 
 Rules:
@@ -698,7 +821,7 @@ Before opening any PR, verify:
 - [ ] All new folders have `README.md`
 - [ ] All folders and files are numbered (prefix matches reading order)
 - [ ] All page H1 titles have `section.page.` prefix
-- [ ] `SUMMARY.md` updated (correct paths, README entry points, numbered labels)
+- [ ] `SUMMARY.md` updated in **this same commit** (correct paths, README entry points, numbered labels) — ⛔ if adding a new file and this is unchecked, stop and fix before committing
 - [ ] Internal cross-references updated (if files renamed/moved)
 - [ ] PR body describes all changes accurately
 - [ ] YAML front matter valid (values with special characters are quoted)
@@ -724,15 +847,25 @@ The agent needs:
 
 ### Branch Protection
 
-**Mandatory.** The main branch must be protected:
+**Mandatory and FACE-enforced** (ADR-KBM-007). The main branch
+must be protected:
 - Require PR before merge
-- Require at least 1 approval
+- Require at least 1 codeowner approval
 - No direct pushes (not even from admins, ideally)
 
-If branch protection is not enabled, the agent should:
-1. Flag it as a security risk
-2. Provide instructions to enable it
-3. Still use branch + PR workflow regardless (defence in depth)
+FACE applies this policy automatically on import and re-applies it
+via the drift banner if it's ever loosened on GitHub. If you see a
+non-dismissable amber "branch protection loose" banner on the KB
+Manager's settings page, that's the projector flagging the drift.
+The agent should never disable this policy or merge without an
+approval, even with admin permission.
+
+If branch protection is somehow disabled (e.g., legacy KB not yet
+imported through FACE):
+1. Flag it as a governance violation, not just a security risk.
+2. Point the human at the KB Manager's settings page (one-click
+   "Apply recommended branch protection").
+3. Still use branch + PR workflow regardless (defence in depth).
 
 ---
 
@@ -748,14 +881,32 @@ If the organisation uses GitBook as a human-readable layer:
 
 ## Configuration Reference
 
-These values come from `kb-config.yaml`:
+These values come from `kb-config.yaml`. The repo URL itself comes
+from the agent-side `KB_LOCATION` (the YAML doesn't carry it — see
+ADR-KBM-007 for why `kb.platform` and `kb.repository` were dropped):
 
 ```yaml
 kb:
-  platform: git
+  name: My Organisation KB
   main_ref: main
-  location: https://github.com/org/knowledge-base
+  language: en
+  org_type: scaleup            # startup | scaleup | enterprise
+
+admins:                         # KB-wide admins (kb_access=admin mirror)
+  - alice
+  - bob
+
+owners:                         # path-scoped layer reviewers
+  1-company:     [ceo]
+  2-departments: [dept-lead, co-lead]
+  3-products:    [pm-1, pm-2]
+  4-projects:    [lead]
 ```
+
+Legacy configs may still carry `kb.platform: git` and
+`kb.repository: …` — readers tolerate these but the projector
+(see ADR-KBM-007 §5) ignores them when regenerating
+CODEOWNERS / branch protection.
 
 Agent-side configuration:
 ```
@@ -765,53 +916,39 @@ GIT_TOKEN: <api-token>  # stored securely, never in KB
 
 ---
 
+## Access & Governance (ADR-KBM-007)
 
-## Reference Implementation
+The git surface is the **enforcement layer**, not the source of
+truth. FACE owns intent (`organization_members` + `kb_access` in
+the KB Manager DB, plus `admins:` and `owners.<layer>` in
+`kb-config.yaml`); GitHub owns enforcement (repo collaborators,
+CODEOWNERS, branch protection). A pure projector function syncs
+FACE → GitHub one-way; the reverse direction surfaces as a drift
+banner an admin must resolve.
 
-A ready-to-use Python script is included at `scripts/kb_write.py`. It implements the full write workflow described above:
+**Practical rules for the agent:**
 
-1. Reads configuration from CLI args, environment variables, or `kb-config.yaml`
-2. Creates a branch from main
-3. Commits one or more files
-4. Opens a pull request
+- **Never write `.github/CODEOWNERS` directly.** It's a derived
+  artifact, regenerated from `kb-config.yaml`'s `admins:` +
+  `owners.<layer>:` blocks by the projector. Hand-edits will be
+  overwritten on the next sync — and worse, they break the
+  one-way contract. If approval routing needs to change, edit
+  `kb-config.yaml` and open a PR; the projector takes care of
+  the rest.
 
-**Usage:**
-```bash
-# Using kb-config.yaml (recommended after face-setup)
-python3 scripts/kb_write.py \
-  --kb-config path/to/kb-config.yaml \
-  --token-file path/to/github-token \
-  --file "1-company/2-strategy.md" \
-  --content "# Strategy\n..." \
-  --branch "feat/add-strategy" \
-  --pr-title "feat: add company strategy"
+- **`owners.<layer>` is `string | string[]`.** Multi-owner is
+  supported and intentional. Don't collapse arrays to scalars
+  when editing the YAML.
 
-# Using environment variables
-export KB_REPO="org/knowledge-base"
-export GIT_TOKEN_FILE="~/.config/github_token"
-python3 scripts/kb_write.py \
-  --file "1-company/2-strategy.md" \
-  --content "# Strategy\n..." \
-  --branch "feat/add-strategy" \
-  --pr-title "feat: add company strategy"
+- **`admins:` is the KB-wide admin list** (top-level sibling of
+  `owners:`). Distinct from `organization_members` admins in the
+  KB Manager DB — the YAML lists them by GitHub login so AI
+  agents can read the spec without consulting FACE.
 
-# Multiple files in one PR
-python3 scripts/kb_write.py \
-  --kb-config path/to/kb-config.yaml \
-  --token-file path/to/github-token \
-  --files '[{"path":"file1.md","content":"..."},{"path":"file2.md","content":"..."}]' \
-  --branch "feat/batch-update" \
-  --pr-title "feat: batch content update"
-```
-
-**Config resolution order:**
-| Setting | CLI | Environment | kb-config.yaml |
-|---------|-----|-------------|----------------|
-| Repository | `--repo` | `KB_REPO` | `kb.repository` |
-| Token | `--token-file` | `GIT_TOKEN` or `GIT_TOKEN_FILE` | — |
-| Base branch | `--base` | `KB_MAIN_REF` | `kb.main_ref` |
-
-**Note:** This is a GitHub-specific reference implementation. For GitLab, Bitbucket, or Azure DevOps, adapt the API calls accordingly.
+- **Branch protection drift** (e.g., "Require 1 approval"
+  toggled off on GitHub) is the projector's responsibility to
+  detect and the admin's responsibility to apply. The agent
+  should flag it, not silently work around it.
 
 ---
 
@@ -820,8 +957,5 @@ python3 scripts/kb_write.py \
 - Never push directly to main, even if branch protection is misconfigured
 - Never merge without human approval
 - Never store API tokens or secrets in the KB repository
+- Never hand-edit `.github/CODEOWNERS` — it's regenerated by FACE's projector from `kb-config.yaml`
 - If Git API is unavailable (outage), say so — do not fall back to cached/stale content without marking it
-
----
-
-*Owner: Luna @ ABQ | Last updated: 16/04/2026*
