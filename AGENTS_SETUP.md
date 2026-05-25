@@ -142,9 +142,9 @@ Set `org_type` in `kb-config.yaml` accordingly. Delete structure files that don'
 
 **Before asking Question 1**, check the environment:
 
-Is there a `.git` folder in the root of this repository? Is `kb-config.yaml` already set to `platform: git`?
+Is there a `.git` folder in the root of this repository? (The KB_LOCATION URL also reveals this — `github.com/…` / `gitlab.com/…` / `bitbucket.org/…` / Azure DevOps means git. The `kb.platform` field that older docs reference was dropped by ADR-KBM-007 — the parent `face-kb` skill now infers the platform from the URL shape.)
 
-- **Yes (Git repo detected):** Skip Question 1. Say: *"I can see this is a Git repository — platform is already set to `git`. Moving to Question 2."* Proceed directly to Question 2.
+- **Yes (Git repo detected):** Skip Question 1. Say: *"I can see this is a Git repository — using the git platform. Moving to Question 2."* Proceed directly to Question 2.
 - **No:** Ask Question 1 as normal.
 
 ### Question 1: Existing Documentation System
@@ -275,21 +275,27 @@ Two templates are available depending on the platform. Use the appropriate one.
 
 Reference: `face-kb-git/templates/kb-config-git.yaml`
 
+Schema is ADR-KBM-007 (FACE owns intent, GitHub owns enforcement).
+`kb.platform` and `kb.repository` were dropped — the repo URL
+comes from the agent-side `KB_LOCATION` and the platform is
+inferred from its shape.
+
 ```yaml
 kb:
-  platform: git
+  name: My Organisation KB
   main_ref: main
   language: en
-  repository: https://github.com/your-org/your-knowledge-base
+  org_type: scaleup            # startup | scaleup | enterprise
 
-owners:
-  company: "CTO / COO"
-  departments:
-    engineering: "Engineering Lead"
-  products:
-    main-product: "Product Manager"
-  projects:
-    current-project: "Project Lead"
+admins:                         # KB-wide admins; appear as the
+  - alice                       # catch-all in CODEOWNERS.
+  - bob
+
+owners:                         # Per-layer reviewers; can be a
+  1-company:     [ceo]          # scalar or an array.
+  2-departments: [dept-lead, co-lead]
+  3-products:    [pm-1, pm-2]
+  4-projects:    [lead]
 
 notifications:
   channel: "#kb-updates"
@@ -444,13 +450,14 @@ When setup is done, present this checklist to the AI Lead before closing:
 ✅ Phase 1 — KB Setup Complete
 
 KB location:       [URL or space name]
-Platform:          [git | mcp]
+Platform:          [git | mcp]   (inferred from KB_LOCATION shape, not stored)
 MCP provider:      [confluence | slite | notion | n/a]
 MCP server:        [official | community | n/a]
 Write strategy:    [branch+PR | draft | staging | comment]
 Main ref:          [main | published]
-kb-config.yaml:    ✅ in place at 0-meta/
-Access control:    ✅ [branch protection enabled | space permissions set]
+kb-config.yaml:    ✅ in place at 0-meta/ (admins + owners filled in)
+CODEOWNERS:        ✅ generated from kb-config.yaml (never hand-edited)
+Branch protection: ✅ enforced by FACE (PR + 1 codeowner approval)
 
 ─────────────────────────────────────────
 Next: Phase 2 — Deploy agents
