@@ -17,6 +17,13 @@ kb:
   # scaleup    → founders.md + advisors.md + leadership.md
   # enterprise → leadership.md + key-roles.md only
 
+  # Optional: FACE Manager URL. When set, AI agents loading the
+  # `face-kb-git` skill prefer the FACE Manager API for writes/reads
+  # (per ADR-KBM-009) so commit attribution stays with the actual
+  # employee instead of a shared agent identity. Leave commented out
+  # for plain-git KBs not managed by FACE Manager.
+  # face_manager_url: # TODO: https://face.your-domain.com
+
 admins:
   # TODO: GitHub usernames of KB-wide admins. These people review
   # any layer + appear in CODEOWNERS as the catch-all reviewers.

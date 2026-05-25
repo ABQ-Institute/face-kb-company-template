@@ -10,7 +10,7 @@ You are operating inside an FACE-structured knowledge base. Apply the skills bel
 
 ## Skills Bundle Version
 
-**Embedded version:** `2026-05-25`
+**Embedded version:** `2026-05-26`
 **Canonical source:** [`abq-knowledge-base/3-products/face/7-skills/SKILLS_VERSION`](https://github.com/ABQ-Institute/abq-knowledge-base/blob/main/3-products/face/7-skills/SKILLS_VERSION)
 **Marker file (machine-readable):** [`0-meta/.face-skills-version`](0-meta/.face-skills-version)
 
@@ -913,6 +913,146 @@ Agent-side configuration:
 KB_LOCATION: https://github.com/org/knowledge-base
 GIT_TOKEN: <api-token>  # stored securely, never in KB
 ```
+
+---
+
+## Writing via FACE Manager API (ADR-KBM-009) — preferred path
+
+If `kb-config.yaml` carries a `kb.face_manager_url:` field, the KB is
+managed by FACE KB Manager and the agent **should prefer the FACE
+Manager API over direct git writes**. The API resolves the request
+to a pre-mapped FACE user and opens the PR using *that user's*
+stored OAuth token, so commit + PR authorship attribute to the
+employee — preserving CODEOWNERS routing, `git blame`, and the
+audit trail. Direct git writes with the agent's own GitHub identity
+break all of that.
+
+### When to use the API vs direct git
+
+| Condition | Path |
+|---|---|
+| `kb.face_manager_url` is set | **FACE Manager API** (this section) |
+| `kb.face_manager_url` is unset | Direct git write (the rest of this skill) |
+| API call returns `unauthorized` / `unknown_external_id` | Fall back to direct git write, but flag the gap to the user — the agent isn't registered or the user isn't mapped |
+
+### Authentication
+
+The agent holds an **Ed25519 private key**; FACE Manager has the
+public key (registered by an org admin in
+`/<orgSlug>/settings/agents`). Every request carries a
+short-lived JWT:
+
+```json
+{
+  "iss": "face_agent_<22-base64url-chars>",
+  "iat": <now>,
+  "exp": <now + at most 300 seconds>,
+  "jti": "<unique nonce>"
+}
+```
+
+Signed with the agent's private key (alg = `EdDSA`). Sent as:
+
+```
+Authorization: Bearer <jwt>
+```
+
+Mint a fresh JWT for each request (or cache for <5 min). Token
+lifetime is hard-capped at 5 minutes server-side — longer
+`exp` values are rejected even with a valid signature.
+
+### Identifying the user the agent is acting for
+
+Every API call must identify the FACE user on whose behalf the
+agent is acting:
+
+- **Reads** (`GET …`): header `X-Face-Actor-External-Id: <id>`
+- **Writes** (`POST …`): body `{ "actor": { "external_id": "<id>" } }`
+
+`<id>` is whatever identifier the agent's source system uses
+(Slack user id `U01ABCDEF`, Teams oid, GitHub login, the agent's
+own internal user id — opaque to FACE). The mapping from
+`external_id` to FACE user is **pre-registered by an org admin**;
+the agent cannot create or alter mappings on its own.
+
+### Endpoints
+
+```
+POST   /api/agent/kb/:orgSlug/:kbSlug/propose-change
+GET    /api/agent/kb/:orgSlug/:kbSlug/tree?path=<dir>
+GET    /api/agent/kb/:orgSlug/:kbSlug/file?path=<file>
+```
+
+#### `POST .../propose-change` — open a PR
+
+```jsonc
+// Request body:
+{
+  "actor": { "external_id": "U01ABCDEF" },
+  "files": [
+    { "path": "1-company/3-strategy.md", "content": "# 1.3. Strategy\n…" }
+  ],
+  "prTitle": "feat: add company strategy doc",
+  "prBody": "Drafted by openclaw on behalf of @alice…",
+  "branchName": "ai/openclaw/strategy-doc-9bz1k4"   // optional
+}
+
+// Response (200):
+{
+  "prUrl": "https://github.com/…",
+  "prNumber": 73,
+  "branch": "ai/openclaw/strategy-doc-9bz1k4"
+}
+```
+
+#### `GET .../tree?path=1-company` — list a directory
+
+```jsonc
+// Response (200):
+{
+  "entries": [
+    { "path": "1-company/README.md", "type": "file", "name": "README.md", "sha": "…" },
+    { "path": "1-company/policies", "type": "dir",  "name": "policies" }
+  ]
+}
+```
+
+System files (`.git/`, `0-meta/`, `AGENTS*.md`, `CLAUDE.md`, etc.)
+are filtered out — same default as the FACE web UI.
+
+#### `GET .../file?path=1-company/policies/remote-work.md`
+
+```jsonc
+// Response (200):
+{
+  "path": "1-company/policies/remote-work.md",
+  "sha": "…",
+  "content": "# 1.1. Remote-work policy\n…"
+}
+```
+
+### Error codes the agent should branch on
+
+| Code | Meaning | Recommended agent action |
+|---|---|---|
+| `unauthorized` | JWT invalid/expired or agent revoked | Stop. Tell the user the agent's credentials need refresh. |
+| `unknown_external_id` | No mapping for this `external_id` | Tell the user to ask an admin to add a mapping in `/<org>/settings/agents`. |
+| `kb_not_found` | KB doesn't exist | Confirm `orgSlug`/`kbSlug`. |
+| `actor_no_kb_access` | Mapped user has no read/write access to this KB | Tell the user to ask an admin to grant access in the Members matrix. |
+| `needs_github_link` | Mapped user hasn't linked GitHub to FACE | Tell the user to sign back in to FACE with GitHub. |
+| `oauth_app_not_approved_for_org` | FACE OAuth app not authorized on the GitHub org | Tell the user to ask a GitHub-org admin to approve the FACE OAuth app at github.com/organizations/<org>/settings/oauth_application_policy. |
+| `github_error` | Generic GitHub-side failure | Surface the underlying message; retries OK after a brief delay. |
+| `invalid_body` / `missing_path` / `missing_actor` | Request shape error | Fix the request and retry. |
+
+### Why this exists (one-paragraph rationale)
+
+FACE owns access intent; GitHub owns enforcement (ADR-KBM-007). For
+the access model to work, **the user identity making changes must be
+the *actual employee*, not the agent's shared service account**. The
+API does this by resolving the agent's identity-claim to a curated
+mapping, then using the *employee's* stored OAuth token to talk to
+GitHub. The agent never touches the employee's credentials; the
+employee never has to paste a PAT into the agent. ADR-KBM-009.
 
 ---
 
