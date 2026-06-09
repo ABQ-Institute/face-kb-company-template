@@ -1112,8 +1112,8 @@ only when a specific task calls for them, to keep the always-on context lean.
 **When:** after a feature designed with a spec/design doc is implemented, to record its
 architecturally-significant decisions in the relevant product's decisions log.
 
-**Load it on demand** by fetching the canonical skill:
-[`abq-knowledge-base/3-products/face/7-skills/face-kb-decisions/SKILL.md`](https://github.com/ABQ-Institute/abq-knowledge-base/blob/main/3-products/face/7-skills/face-kb-decisions/SKILL.md)
+**Load it on demand** from the local copy snapshotted into this KB:
+[`0-meta/skills/face-kb-decisions/SKILL.md`](0-meta/skills/face-kb-decisions/SKILL.md)
 
 It proposes draft ADRs (`Status: Proposed`) via a PR; a human ratifies by merging.
 Depends on the embedded `face-kb-write` rules.
