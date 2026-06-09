@@ -49,3 +49,6 @@ skills:
     - face-kb-core
     - face-kb-write
     - face-kb-git
+  # On-demand companions are NOT auto-loaded; load when the task calls for them.
+  companions:
+    - face-kb-decisions
