@@ -23,7 +23,7 @@
   * [Policies](1-company/4-policies/README.md)
     * [Communication](1-company/4-policies/1-communication.md)
     * [Security](1-company/4-policies/2-security.md)
-    * [Finance](1-company/4-policies/3-finance.md)
+    * [Finance](1-company/4-policies/4-finance.md)
   * [Brand](1-company/5-brand/README.md)
     * [Voice & Tone](1-company/5-brand/1-voice-tone.md)
     * [Visual Identity](1-company/5-brand/2-visual-identity.md)
