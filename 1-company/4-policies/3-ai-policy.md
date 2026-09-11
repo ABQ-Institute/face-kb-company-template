@@ -8,7 +8,7 @@ data_status: placeholder
 #         Never present plausible content as verified.
 ---
 
-# AI Usage Policy
+# 1.4.3. AI Usage Policy
 
 **Status:** <!-- draft | approved -->
 **Owner:** <!-- GitHub username -->

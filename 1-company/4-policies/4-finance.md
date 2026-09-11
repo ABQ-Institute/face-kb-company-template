@@ -8,7 +8,7 @@ data_status: placeholder
 #         Never present plausible content as verified.
 ---
 
-# 1.4.3. Finance Policy
+# 1.4.4. Finance Policy
 
 **Status:** <!-- draft | approved -->
 **Owner:** <!-- GitHub username -->
