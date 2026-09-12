@@ -39,6 +39,30 @@ owners:
   3-products: # TODO: GitHub username, or [user-a, user-b]
   4-projects: # TODO: GitHub username, or [user-a, user-b]
 
+# Does the reading order of the things directly inside a folder matter?
+# `sequence`   — yes; the numeric prefix (`1-`, `2-`) fixes an order you chose,
+#                and FACE asks for one on anything new you put there.
+# `collection` — no; a numeric prefix is not required. Anything already
+#                numbered keeps its number — this never renames.
+#
+# Below are our suggestions, not rules: a department's pages have a reading
+# order, forty projects do not. Change any line that is wrong for you.
+#
+# Unlike `owners:` above, keys here are folder paths at ANY depth, and a line
+# governs only what sits DIRECTLY inside that folder. So `2-departments:
+# collection` means department folders need no numbers, and says nothing about
+# the inside of a department — where `1-overview.md`, `2-processes.md`,
+# `3-team.md` genuinely is a sequence, and stays one.
+#
+# Delete a line and FACE goes back to inferring that folder's answer from what
+# is already in it. That inference is what every KB used before this existed;
+# it is a reasonable guess and it is not a decision anyone made.
+naming:
+  2-departments: collection
+  3-products:    collection
+  4-projects:    collection
+  5-agents:      collection
+
 notifications:
   channel: # TODO: '#kb-updates' (Slack channel) or email@example.com
   method: slack  # Options: slack | email | teams | none
