@@ -1,4 +1,4 @@
-# 1.6. Decisions
+# 1.7. Decisions
 
 Architecture Decision Records (ADRs) for company-level decisions.
 

@@ -8,7 +8,7 @@ data_status: placeholder
 #         Never present plausible content as verified.
 ---
 
-# Leadership Team
+# 1.2.2. Leadership Team
 
 **Status:** <!-- draft | approved -->
 **Owner:** <!-- GitHub username -->
