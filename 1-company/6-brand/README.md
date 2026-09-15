@@ -1,4 +1,4 @@
-# 1.5. Brand
+# 1.6. Brand
 
 How we present ourselves to the world.
 

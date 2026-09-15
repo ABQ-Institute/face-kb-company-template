@@ -1,4 +1,4 @@
-# Company Structure
+# 1.2. Company Structure
 
 Org chart and the people layer at company level. **Not an employee directory** — individual team members belong in their department's `3-team.md`.
 
