@@ -8,7 +8,7 @@ data_status: placeholder
 #         Never present plausible content as verified.
 ---
 
-# Advisory Board
+# 1.2.4. Advisory Board
 
 **Status:** <!-- draft | approved -->
 **Owner:** <!-- GitHub username -->

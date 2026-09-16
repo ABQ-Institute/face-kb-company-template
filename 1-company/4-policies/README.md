@@ -1,4 +1,4 @@
-# Policies
+# 1.4. Policies
 
 Company-wide rules and guardrails that apply across all departments.
 

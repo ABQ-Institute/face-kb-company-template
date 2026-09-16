@@ -8,7 +8,7 @@ data_status: placeholder
 #         Never present plausible content as verified.
 ---
 
-# 1.5.1. Voice & Tone
+# 1.6.1. Voice & Tone
 
 **Status:** <!-- draft | approved -->
 **Owner:** <!-- GitHub username -->

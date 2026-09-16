@@ -8,7 +8,7 @@ data_status: placeholder
 #         Never present plausible content as verified.
 ---
 
-# 1.5.2. Visual Identity
+# 1.6.2. Visual Identity
 
 **Status:** <!-- draft | approved -->
 **Owner:** <!-- GitHub username -->

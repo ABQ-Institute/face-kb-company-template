@@ -8,7 +8,7 @@ data_status: placeholder
 #         Never present plausible content as verified.
 ---
 
-# Key Cross-Functional Roles
+# 1.2.5. Key Cross-Functional Roles
 
 **Status:** <!-- draft | approved -->
 **Owner:** <!-- GitHub username -->
